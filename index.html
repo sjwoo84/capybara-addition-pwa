@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+  />
+  <meta name="theme-color" content="#c98f5c" />
+  <meta name="description" content="카피바라와 함께하는 4살 덧셈 놀이 PWA" />
+  <link rel="manifest" href="./manifest.json" />
+  <link rel="icon" href="./assets/icon-192.png" />
+  <title>카피바라 덧셈 놀이</title>
+
+  <style>
+    :root {
+      --bg: #fff8f1;
+      --card: #ffffff;
+      --primary: #c98f5c;
+      --primary-dark: #a97040;
+      --secondary: #8fd3c1;
+      --accent: #ffd66b;
+      --success: #2e9e44;
+      --error: #d95c5c;
+      --text: #3b3128;
+      --muted: #7d6f64;
+      --shadow: 0 10px 24px rgba(80, 50, 20, 0.08);
+      --radius: 24px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans KR", Arial, sans-serif;
+      background: linear-gradient(180deg, #fff8f1 0%, #fff2de 100%);
+      color: var(--text);
+    }
+
+    body {
+      min-height: 100vh;
+    }
+
+    .wrap {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 14px;
+    }
+
+    .app {
+      background: var(--card);
+      border-radius: 28px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      border: 3px solid #f5e5d5;
+    }
+
+    .hero {
+      background: linear-gradient(135deg, #f6d8b8, #f8ebd8);
+      padding: 20px 18px 18px;
+      text-align: center;
+      position: relative;
+    }
+
+    .hero img {
+      width: 92px;
+      height: 92px;
+      margin-bottom: 8px;
+    }
+
+    h1 {
+      margin: 6px 0 6px;
+      font-size: 31px;
+      color: var(--primary-dark);
+    }
+
+    .subtitle {
+      font-size: 16px;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    .install-tip {
+      margin-top: 14px;
+      background: rgba(255,255,255,0.72);
+      border: 2px dashed #e6c8ab;
+      border-radius: 18px;
+      padding: 12px;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .content {
+      padding: 16px;
+    }
+
+    .controls {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    select, button, input {
+      width: 100%;
+      border: none;
+      border-radius: 18px;
+      padding: 14px 16px;
+      font-size: 18px;
+    }
+
+    select {
+      background: #f7f3ef;
+      color: var(--text);
+    }
+
+    button {
+      background: var(--secondary);
+      color: #16463d;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    button.primary {
+      background: var(--primary);
+      color: white;
+    }
+
+    button:active {
+      transform: translateY(1px);
+    }
+
+    .board {
+      background: #fffaf5;
+      border: 2px solid #f4e4d6;
+      border-radius: 24px;
+      padding: 22px 16px;
+      text-align: center;
+    }
+
+    .theme-line {
+      font-size: 20px;
+      margin-bottom: 10px;
+    }
+
+    .visual {
+      min-height: 72px;
+      font-size: 34px;
+      line-height: 1.8;
+      margin-bottom: 10px;
+      word-break: break-word;
+    }
+
+    .equation {
+      font-size: 38px;
+      font-weight: 800;
+      margin-bottom: 18px;
+      color: #4b3b2d;
+    }
+
+    .answer-area {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    input {
+      max-width: 140px;
+      text-align: center;
+      font-size: 28px;
+      border: 2px solid #ecd8c6;
+      background: white;
+    }
+
+    .message {
+      min-height: 38px;
+      margin-top: 16px;
+      font-size: 26px;
+      font-weight: 800;
+    }
+
+    .message.ok {
+      color: var(--success);
+    }
+
+    .message.no {
+      color: var(--error);
+    }
+
+    .stars {
+      min-height: 32px;
+      margin-top: 6px;
+      font-size: 26px;
+      color: #f2b705;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .stat {
+      background: #f8f4ef;
+      border-radius: 18px;
+      padding: 12px;
+      text-align: center;
+      border: 1px solid #f0dfcf;
+    }
+
+    .stat .label {
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+
+    .stat .value {
+      font-size: 22px;
+      font-weight: 800;
+      color: var(--primary-dark);
+    }
+
+    .footer {
+      text-align: center;
+      color: var(--muted);
+      font-size: 14px;
+      padding: 16px 12px 24px;
+    }
+
+    @media (max-width: 520px) {
+      h1 {
+        font-size: 27px;
+      }
+
+      .visual {
+        font-size: 28px;
+      }
+
+      .equation {
+        font-size: 31px;
+      }
+
+      .message {
+        font-size: 22px;
+      }
+
+      input {
+        max-width: 110px;
+        font-size: 24px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="app">
+      <div class="hero">
+        <img src="./assets/capybara-badge.svg" alt="카피바라 배지" />
+        <h1>🦫 카피바라 덧셈 놀이</h1>
+        <div class="subtitle">
+          카피바라 친구랑 함께 보고, 세고, 더해봐요!
+        </div>
+        <div class="install-tip" id="installTip">
+          GitHub Pages에 올린 뒤 휴대폰에서 열고, 홈 화면에 추가하면 앱처럼 쓸 수 있어요.
+        </div>
+      </div>
+
+      <div class="content">
+        <div class="controls">
+          <select id="mode">
+            <option value="visual">카피바라 그림으로 보기</option>
+            <option value="number">숫자로 보기</option>
+          </select>
+
+          <select id="difficulty">
+            <option value="easy">쉬움 (합 0~5 중심)</option>
+            <option value="normal">보통 (합 0~10)</option>
+          </select>
+
+          <button class="primary" id="checkBtn">정답 확인</button>
+          <button id="nextBtn">다음 문제</button>
+
+          <button id="resetBtn">기록 초기화</button>
+          <button id="installBtn" style="display:none;">홈 화면에 추가</button>
+        </div>
+
+        <div class="board">
+          <div class="theme-line">🌿 카피바라 간식 세기 🌿</div>
+          <div id="visual" class="visual"></div>
+          <div id="equation" class="equation"></div>
+
+          <div class="answer-area">
+            <input
+              id="answerInput
