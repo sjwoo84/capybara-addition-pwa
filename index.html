@@ -297,4 +297,211 @@
 
           <div class="answer-area">
             <input
-              id="answerInput
+              id="answerInput"
+              type="number"
+              min="0"
+              inputmode="numeric"
+              placeholder="답"
+            />
+          </div>
+
+          <div id="message" class="message"></div>
+          <div id="stars" class="stars"></div>
+        </div>
+
+        <div class="stats">
+          <div class="stat">
+            <div class="label">푼 문제</div>
+            <div class="value" id="totalCount">0</div>
+          </div>
+          <div class="stat">
+            <div class="label">맞은 문제</div>
+            <div class="value" id="correctCount">0</div>
+          </div>
+          <div class="stat">
+            <div class="label">연속 성공</div>
+            <div class="value" id="streakCount">0</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="footer">
+        카피바라는 천천히 쉬면서 먹는 동물이에요. 우리도 천천히 해봐요 😊
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let a = 0;
+    let b = 0;
+    let answer = 0;
+    let checked = false;
+    let deferredPrompt = null;
+
+    const modeEl = document.getElementById('mode');
+    const difficultyEl = document.getElementById('difficulty');
+    const visualEl = document.getElementById('visual');
+    const equationEl = document.getElementById('equation');
+    const answerInputEl = document.getElementById('answerInput');
+    const messageEl = document.getElementById('message');
+    const starsEl = document.getElementById('stars');
+    const totalCountEl = document.getElementById('totalCount');
+    const correctCountEl = document.getElementById('correctCount');
+    const streakCountEl = document.getElementById('streakCount');
+    const installBtn = document.getElementById('installBtn');
+    const installTip = document.getElementById('installTip');
+
+    const STORAGE_KEY = 'capybara_addition_pwa_stats_v1';
+
+    function randomInt(min, max) {
+      return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+
+    function loadStats() {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (!saved) return { total: 0, correct: 0, streak: 0 };
+      try {
+        return JSON.parse(saved);
+      } catch {
+        return { total: 0, correct: 0, streak: 0 };
+      }
+    }
+
+    function saveStats(stats) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(stats));
+      renderStats();
+    }
+
+    function renderStats() {
+      const stats = loadStats();
+      totalCountEl.textContent = stats.total;
+      correctCountEl.textContent = stats.correct;
+      streakCountEl.textContent = stats.streak;
+    }
+
+    function makeCapybaras(n) {
+      if (n === 0) return '0';
+      return '🦫'.repeat(n);
+    }
+
+    function generateProblem() {
+      const difficulty = difficultyEl.value;
+
+      if (difficulty === 'easy') {
+        a = randomInt(0, 5);
+        b = randomInt(0, 5 - a);
+      } else {
+        a = randomInt(0, 5);
+        b = randomInt(0, 5);
+        while (a + b > 10) {
+          a = randomInt(0, 5);
+          b = randomInt(0, 5);
+        }
+      }
+
+      answer = a + b;
+      checked = false;
+      renderProblem();
+      answerInputEl.value = '';
+      messageEl.textContent = '';
+      messageEl.className = 'message';
+      starsEl.textContent = '';
+      answerInputEl.focus();
+    }
+
+    function renderProblem() {
+      const mode = modeEl.value;
+
+      if (mode === 'visual') {
+        visualEl.textContent = `${makeCapybaras(a)} + ${makeCapybaras(b)}`;
+        equationEl.textContent = `모두 몇 마리일까?`;
+      } else {
+        visualEl.textContent = '';
+        equationEl.textContent = `${a} + ${b} = ?`;
+      }
+    }
+
+    function checkAnswer() {
+      if (checked) return;
+
+      const raw = answerInputEl.value;
+      if (raw === '') {
+        messageEl.textContent = '답을 써볼까?';
+        messageEl.className = 'message no';
+        starsEl.textContent = '';
+        return;
+      }
+
+      const userAnswer = Number(raw);
+      const stats = loadStats();
+      stats.total += 1;
+
+      if (userAnswer === answer) {
+        stats.correct += 1;
+        stats.streak += 1;
+        messageEl.textContent = '참 잘했어요! 카피바라가 기뻐해요! 🎉';
+        messageEl.className = 'message ok';
+        starsEl.textContent = '⭐ ⭐ ⭐';
+      } else {
+        stats.streak = 0;
+        messageEl.textContent = `다시 해보자! 정답은 ${answer}`;
+        messageEl.className = 'message no';
+        starsEl.textContent = '🌿';
+      }
+
+      saveStats(stats);
+      checked = true;
+    }
+
+    function resetStats() {
+      localStorage.removeItem(STORAGE_KEY);
+      renderStats();
+      messageEl.textContent = '기록을 지웠어요.';
+      messageEl.className = 'message';
+      starsEl.textContent = '';
+    }
+
+    document.getElementById('checkBtn').addEventListener('click', checkAnswer);
+    document.getElementById('nextBtn').addEventListener('click', generateProblem);
+    document.getElementById('resetBtn').addEventListener('click', resetStats);
+
+    modeEl.addEventListener('change', renderProblem);
+    difficultyEl.addEventListener('change', generateProblem);
+
+    answerInputEl.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') checkAnswer();
+    });
+
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      installBtn.style.display = 'block';
+      installTip.textContent = '홈 화면에 추가 버튼을 누르면 앱처럼 쓸 수 있어요.';
+    });
+
+    installBtn.addEventListener('click', async () => {
+      if (!deferredPrompt) return;
+      deferredPrompt.prompt();
+      await deferredPrompt.userChoice;
+      deferredPrompt = null;
+      installBtn.style.display = 'none';
+    });
+
+    window.addEventListener('appinstalled', () => {
+      installTip.textContent = '홈 화면에 추가되었어요. 이제 앱처럼 사용할 수 있어요!';
+      installBtn.style.display = 'none';
+    });
+
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js')
+          .then(() => console.log('SW registered'))
+          .catch((err) => console.log('SW failed', err));
+      });
+    }
+
+    renderStats();
+    generateProblem();
+  </script>
+</body>
+</html>
